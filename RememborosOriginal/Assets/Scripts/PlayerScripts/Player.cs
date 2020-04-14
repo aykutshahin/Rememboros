@@ -8,11 +8,8 @@ public class Player : CharacterRenderer2D
 {
     [Space(10)]
     [Header("Player Variables")]
-    [SerializeField] private float jumpForce = 0;
-
     [SerializeField] private float jumpHeight = 4f;
     [SerializeField] private float timeToJumpApex = .4f;
-
     Animator myAnimator; // animator component
     private float move; // Movement input variable range in [-1,1]
     private bool isTouchingWall;
@@ -25,8 +22,8 @@ public class Player : CharacterRenderer2D
     float gravity;
     float jumpVelocity;
     float velocityXSmoothing;
-   public float accelerationTimeAirborne = .2f;
-   public float accelerationTimeGrounded = .1f;
+    public float accelerationTimeAirborne = .2f;
+    public float accelerationTimeGrounded = .1f;
 
     private int extraJumps; // Amount of jump
     [SerializeField] private int extraJumpsValue = 0;
@@ -35,15 +32,13 @@ public class Player : CharacterRenderer2D
     [SerializeField] private float wallSlideSpeed = 0;
     [SerializeField] SendingRay testPoint;
 
+
     private Vector3[] _aroundGrids;
 
     float tempcharMoveSpeed; // created for changing charMoveSpeed when player attacks
     [SerializeField] private Transform wallCheck = null;
     [SerializeField] private Transform wallCheck2 = null;
 
-    //THROWING 
-    [SerializeField] private GameObject Knife = null;
-    [SerializeField] private Transform throwPoint = null;
 
     //TIMER
     float nextAttackTime = 0f;
@@ -92,10 +87,10 @@ public class Player : CharacterRenderer2D
     // Start is called before the first frame update
     void Start()
     {
+
         charController = GetComponent<CharacterController2D>();
         isTouchingEnemyHeadWithHead = false;
         collidingAgainst = CollidedAreas.Ground;
-        charTimer = GetComponent<Timer>();
         ChangeState(CharacterState.inIdling);
         charCurrentHealth = charMaxHealth;
         charIsFacingRight = true;
@@ -123,12 +118,10 @@ public class Player : CharacterRenderer2D
     private void FixedUpdate()
     {
         IsOnGround();
-        AdvancedJump();
-        Move();
-        //SettingGridsCoordinates();
+        SettingGridsCoordinates();
         SetGridsAroundPlayer();
-        //ThrowKnife();
         CheckSurroundings();
+        //AdvancedJump();
     }
     protected override void Move()
     {
@@ -139,22 +132,22 @@ public class Player : CharacterRenderer2D
         // get movement input value
         /* crossplatfrominputmanager dan çekmek daha iyi olabilir her türlü platformda çalışması için*/
         // check if attacking, if so dont get input for movement because of stopping character
-        if (IsRunning() || IsJumping() || IsFalling())
+        if (IsRunning() || IsJumping() || IsFalling())// && canMove)
         {
             velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (charController.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
         }
         charController.Move(velocity * Time.deltaTime);
         // check if sliding, if so make slide movement
         if (IsWallSliding())
-        { 
+        {
             if (velocity.y < -wallSlideSpeed)
             {
                 velocity = new Vector2(velocity.x, -wallSlideSpeed);
             }
         }
-        
+
     }
-     void Jump()
+    void Jump()
     {
         // check if is grounded or wall sliding, if so reset extrajump value
         if (charIsGrounded || IsWallSliding())
@@ -163,22 +156,21 @@ public class Player : CharacterRenderer2D
         }
         if (Input.GetKeyDown(KeyCode.Space) && extraJumps > 0 && !IsAirAttacking())
         {
-                velocity = Vector2.up * jumpVelocity;
-                charController.Move(velocity * Time.deltaTime);
-                myAnimator.SetTrigger("Jump");
-                extraJumps--;
+            velocity = Vector2.up * jumpVelocity;
+            charController.Move(velocity * Time.deltaTime);
+            myAnimator.SetTrigger("Jump");
+            extraJumps--;
         }
         else if (Input.GetKeyDown(KeyCode.Space) && extraJumps == 0 && charIsGrounded == true && !IsAirAttacking())
         {
-                velocity = Vector2.up * jumpVelocity;
-                charController.Move(velocity * Time.deltaTime);
-                myAnimator.SetTrigger("Jump");
+            velocity = Vector2.up * jumpVelocity;
+            charController.Move(velocity * Time.deltaTime);
+            myAnimator.SetTrigger("Jump");
         }
     }
     void RunAnimations()
-    {  
+    {
         myAnimator.SetBool("isWallSliding", IsWallSliding());
-       // myAnimator.SetFloat("FallingVelocity", velocity.y);  // play animation falling according to velocity of players rigidbody's y axis 
         myAnimator.SetBool("isAttacking", IsAttacking());
         myAnimator.SetBool("isAirAttacking", IsAirAttacking());
         myAnimator.SetBool("isFalling", IsFalling());
@@ -212,7 +204,8 @@ public class Player : CharacterRenderer2D
                 {
                     ChangeState(CharacterState.onFalling);
                 }
-                
+
+                //canMove = true;
             }
             if (Time.time - lastClickedTime > maxComboDelay * 6)
             {
@@ -227,7 +220,7 @@ public class Player : CharacterRenderer2D
                 // increase amount of clicks           
                 // check if player touchs ground, if so rigidbody velocity is made zero for stopping 
                 if (IsAttacking())
-                {  
+                {
                     //Normal Attack
                     if (IsAttacking())
                     {
@@ -248,16 +241,16 @@ public class Player : CharacterRenderer2D
                 //air attack
                 if (IsAirAttacking())
                 {
-                   // gravity = -10f;
+                    // gravity = -10f;
                     //Air attack
                     if (noOfClicksAir == 1)
                     {
                         myAnimator.SetTrigger("AirAttack1");
                     }
-                   else if(noOfClicksAir == 2)
-                   {
+                    else if (noOfClicksAir == 2)
+                    {
                         myAnimator.SetTrigger("AirAttack2");
-                   }
+                    }
                 }
                 // next click time should be that attack rate which is specified by ourselves.
                 nextAttackTime = Time.time + 1f / charAttackRate;
@@ -267,7 +260,7 @@ public class Player : CharacterRenderer2D
     }
 
     public override void TakeDamage(int damage)
-    { 
+    {
         myAnimator.SetTrigger("Hit");
         charCurrentHealth -= damage;
         if (charCurrentHealth <= 0)
@@ -298,11 +291,11 @@ public class Player : CharacterRenderer2D
     // check movement direction , move range in [-1,1]
     protected override void CheckMovementDirection()
     {
-        if(charIsFacingRight && move < 0)
+        if (charIsFacingRight && move < 0)
         {
             Flip();
         }
-        else if(!charIsFacingRight && move > 0)
+        else if (!charIsFacingRight && move > 0)
         {
             Flip();
         }
@@ -310,7 +303,7 @@ public class Player : CharacterRenderer2D
 
     private void IsOnGround()
     {
-        if(charIsGrounded && !IsGrounded())
+        if (charIsGrounded && !IsGrounded())
         {
             collidingAgainst = CollidedAreas.Ground;
         }
@@ -339,35 +332,18 @@ public class Player : CharacterRenderer2D
         Gizmos.DrawLine(wallCheck.position, new Vector3(wallCheck.position.x + wallCheckDistance, wallCheck.position.y, wallCheck.position.z));
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(tester, new Vector3(gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.x, gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.y));
-        for(int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             Gizmos.DrawWireCube(aroundCoordinates[i], new Vector3(gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.x, gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.y));
         }
-        Vector3 a1Test = (testPoint.foundedTarget - transform.position);
-        Gizmos.DrawRay(transform.position, a1Test);
-    }
-
-    void ThrowKnife()
-    {
-        if(Input.GetKeyDown(KeyCode.Q) && !IsWallSliding())
-        {
-            GameObject knife = (GameObject)Instantiate(Knife, throwPoint.position, Quaternion.identity);
-            if (charIsFacingRight)
-            {
-                knife.transform.localScale = new Vector3(1.0f, knife.transform.localScale.y, transform.localScale.z);
-            }
-            else
-            {
-                knife.transform.localScale = new Vector3(-1.0f, knife.transform.localScale.y, transform.localScale.z);
-            }
-            
-        }
-    }*/
+        /*Vector3 a1Test = (testPoint.foundedTarget - transform.position);
+        Gizmos.DrawRay(transform.position, a1Test);*/ // TO DO Avoiding obstacles
+    //}
 
     void AdvancedJump()
     {
         //if going down then speed up the falling
-        if(velocity.y < 0 && !IsWallSliding() && !charIsGrounded && !isTouchingWall && !IsAirAttacking())
+        if (velocity.y < 0 && !IsWallSliding() && !charIsGrounded && !isTouchingWall && !IsAirAttacking())
         {
             velocity += (Vector3)(Vector2.up * gravity * (fallMultiplier - 1) * Time.deltaTime);
         }
@@ -375,7 +351,7 @@ public class Player : CharacterRenderer2D
 
     protected override void ChangeState(CharacterState charState)
     {
-         this.charState = charState;
+        this.charState = charState;
     }
 
     protected override void SetCharacterState()
@@ -383,11 +359,11 @@ public class Player : CharacterRenderer2D
         //Setting whether character is running or is idling
         if (!IsAttacking())
         {
-            if (move != 0 && charIsGrounded && !IsJumping())
+            if (move != 0 && charIsGrounded && !IsJumping()) //&& canMove)
             {
                 ChangeState(CharacterState.onRunning);
             }
-            else if (charIsGrounded && !IsJumping() & !IsIdling()) // TO DO dynamic to kinematic rigidbody &&
+            else if (charIsGrounded && !IsJumping() & !IsIdling())// && canMove) // TO DO dynamic to kinematic rigidbody &&
             {
                 ChangeState(CharacterState.inIdling);
                 velocity = Vector2.zero;
@@ -404,7 +380,7 @@ public class Player : CharacterRenderer2D
             ChangeState(CharacterState.onWallSliding);
         }
         //
-        if(velocity.y < 0 && !isTouchingWall && !charIsGrounded && !IsAirAttacking())
+        if (velocity.y < 0 && !isTouchingWall && !charIsGrounded && !IsAirAttacking())
         {
             ChangeState(CharacterState.onFalling);
         }
@@ -414,7 +390,7 @@ public class Player : CharacterRenderer2D
         {
             velocity = Vector2.zero;
             //noOfClicks++;
-            lastClickedTime = Time.time;          
+            lastClickedTime = Time.time;
             noOfClicks = Mathf.Clamp(noOfClicks, 1, 3);
             noOfClicksAir = Mathf.Clamp(noOfClicksAir, 1, 3);
             if (charIsGrounded)
@@ -428,48 +404,47 @@ public class Player : CharacterRenderer2D
         }
 
         //TO DO jumping on enemys head (needed animations)
-     /* if (isTouchingEnemyHead && isTouchingEnemyHeadWithHead)
-        {
-            start = transform.position;
-            charRigidbody.bodyType = RigidbodyType2D.Kinematic;
-            RaycastHit2D enemyHit = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, enemyLayers);
-            Vector3 target = enemyHit.rigidbody.gameObject.GetComponent<Enemy>().headPos.position;
-            start = Vector3.Lerp(start, target, (Time.smoothDeltaTime) * 10f);
-            transform.position = start;
-            if(Vector2.Distance(transform.position,enemyHit.rigidbody.gameObject.GetComponent<Enemy>().headPos.position) < 0.08f)
-            {
-                charRigidbody.bodyType = RigidbodyType2D.Static;
-                ChangeState(CharacterState.onEnemy);
-                isTouchingEnemyHeadWithHead = false;
-            }
-            //Vector2 onEnemy = new Vector2(enemyHit.rigidbody.gameObject.GetComponent<Collider2D>().bounds.center.x, enemyHit.rigidbody.gameObject.GetComponent<Collider2D>().bounds.center.y + 0.6f);
-            //enemyHit.rigidbody.MovePosition(Vector2.MoveTowards(enemyPos, enemyPos - new Vector3(0.5f, 0f), Time.deltaTime));
-        }
-        if (IsOnEnemy())
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                charRigidbody.bodyType = RigidbodyType2D.Dynamic;
-                charRigidbody.velocity = new Vector2(1 * jumpVelocity, jumpVelocity * 2);
-                myAnimator.SetTrigger("Jump");
-            }
-        }
-        */
+        /* if (isTouchingEnemyHead && isTouchingEnemyHeadWithHead)
+           {
+               start = transform.position;
+               charRigidbody.bodyType = RigidbodyType2D.Kinematic;
+               RaycastHit2D enemyHit = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, enemyLayers);
+               Vector3 target = enemyHit.rigidbody.gameObject.GetComponent<Enemy>().headPos.position;
+               start = Vector3.Lerp(start, target, (Time.smoothDeltaTime) * 10f);
+               transform.position = start;
+               if(Vector2.Distance(transform.position,enemyHit.rigidbody.gameObject.GetComponent<Enemy>().headPos.position) < 0.08f)
+               {
+                   charRigidbody.bodyType = RigidbodyType2D.Static;
+                   ChangeState(CharacterState.onEnemy);
+                   isTouchingEnemyHeadWithHead = false;
+               }
+               //Vector2 onEnemy = new Vector2(enemyHit.rigidbody.gameObject.GetComponent<Collider2D>().bounds.center.x, enemyHit.rigidbody.gameObject.GetComponent<Collider2D>().bounds.center.y + 0.6f);
+               //enemyHit.rigidbody.MovePosition(Vector2.MoveTowards(enemyPos, enemyPos - new Vector3(0.5f, 0f), Time.deltaTime));
+           }
+           if (IsOnEnemy())
+           {
+               if (Input.GetKeyDown(KeyCode.Space))
+               {
+                   charRigidbody.bodyType = RigidbodyType2D.Dynamic;
+                   charRigidbody.velocity = new Vector2(1 * jumpVelocity, jumpVelocity * 2);
+                   myAnimator.SetTrigger("Jump");
+               }
+           }
+           */
 
     }
 
    /* private void SettingGridsCoordinates()
     {
-        Vector3[] aroundCoordinates = { coor_N, coor_NE, coor_S, coor_NW, coor_W, coor_SW, coor_E, coor_SE, getGridCoordinates};
+        Vector3[] aroundCoordinates = { coor_N, coor_NE, coor_S, coor_NW, coor_W, coor_SW, coor_E, coor_SE, getGridCoordinates };
         _aroundGrids = aroundCoordinates;
     }*/
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.collider == Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, enemyLayers).collider && !isTouchingEnemyHeadWithHead)
+        if (collision.collider == Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, enemyLayers).collider && !isTouchingEnemyHeadWithHead)
         {
             enemyPos = collision.rigidbody.gameObject.transform.position;
         }
     }
-
 }

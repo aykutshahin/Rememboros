@@ -6,7 +6,8 @@ public class GridGraph
     public int Width;
     public int Height;
 
-    public Node[,] Grid;
+    public Dictionary<Vector2,Node> Grid;
+    //public Dictionary<Vector2, Node> Grid;
 
     public List<Vector2> _obstacles;
     /// <summary>
@@ -16,16 +17,17 @@ public class GridGraph
     /// <param name="h">Grid's height value</param>
     public GridGraph(int w, int h)
     {
+        Grid = new Dictionary<Vector2, Node>();
         Width = w;
         Height = h;
 
-        Grid = new Node[w, h];
-
-        for (int x = 0; x < w; x++)
+        for (int x = (int)CameraScript.GetCameraLowerBounds().x; x < w; x++)
         {
-            for (int y = 0; y < h; y++)
+            for (int y = (int)CameraScript.GetCameraLowerBounds().y; y < h; y++)
             {
-                Grid[x, y] = new Node(x, y);
+                Node a = new Node(x, y);
+                Vector2 av = new Vector2(x, y);
+                Grid.Add(av,a);
             }
         }
     }
@@ -76,7 +78,7 @@ public class GridGraph
             Vector2 newVector = v + n.Position;
             if (IsNodeInside(newVector) && !IsObstacle(newVector))
             {
-                neighbours.Add(Grid[(int)(newVector.x), (int)(newVector.y)]);
+                neighbours.Add(Grid[newVector]);
             }
         }
 

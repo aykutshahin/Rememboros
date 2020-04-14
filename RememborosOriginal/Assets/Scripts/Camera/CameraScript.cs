@@ -6,6 +6,9 @@ public class CameraScript : MonoBehaviour
 {
     #region Variables
     #region Public Variables
+    // GridGraph's dimensions
+    public static int GraphWidth;
+    public static int GraphHeight;
     #endregion
     #region Private Variables
     private static Camera mainCamera; // Our camera component
@@ -14,24 +17,25 @@ public class CameraScript : MonoBehaviour
 
     void Start()
     {
-        mainCamera = GetComponent<Camera>();
-        mainCamera.transform.position = new Vector3(0,0, mainCamera.transform.position.z);
-        mainCamera.transform.position = new Vector3(mainCamera.transform.position.x + (mainCamera.orthographicSize * 1.7f), mainCamera.transform.position.y + (mainCamera.orthographicSize), mainCamera.transform.position.z);
+        mainCamera = GetComponentInParent<Camera>();
     }
 
     void Update()
     {
-        
+        SetGridSize();
     }
 
     #region Functions
     #region Public Functions
     public static Vector2 GetCameraLowerBounds()
     {
-        Vector2 cameraBounds = new Vector2(mainCamera.transform.position.x - (mainCamera.orthographicSize * 1.7f), mainCamera.transform.position.y - (mainCamera.orthographicSize));
-        cameraBounds.x = Mathf.Clamp(cameraBounds.x, 0, int.MaxValue);
-        cameraBounds.y = Mathf.Clamp(cameraBounds.y, 0, int.MaxValue);
+        Vector2 cameraBounds = new Vector2(mainCamera.transform.position.x - (mainCamera.orthographicSize * 2), mainCamera.transform.position.y - (mainCamera.orthographicSize * 2));
         return cameraBounds;
+    }
+    public static void SetGridSize()
+    {
+        GraphWidth = (int)mainCamera.transform.position.x + Mathf.CeilToInt(mainCamera.orthographicSize * 2f);
+        GraphHeight = (int)mainCamera.transform.position.y + Mathf.CeilToInt(mainCamera.orthographicSize * 2f);
     }
     #endregion
     #region Private Functions

@@ -35,8 +35,6 @@ public class Enemy : EnemyRenderer2D
     // Update is called once per frame
     void Update()
     {
-        // TO DO assign target but at the moment it doesnt work because of ai animation selector and patrolling doesnt work cant change waypoints.
-        GetComponent<Pathfinder>().GoalNodePosition = player.transform.position;
         CheckLineOfSight();
         SetEnemyState();
         SetTargetType();
@@ -48,6 +46,7 @@ public class Enemy : EnemyRenderer2D
         CheckGrids();
         SetGridsAroundPlayer();
         UpdateAnimations();
+        ChangeTargetLocations();
     }
 
     protected override void OnDrawGizmos()

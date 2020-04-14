@@ -8,7 +8,7 @@ public class TestScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GetComponent<Pathfinder>().GoalNodePosition = new Vector2((int)Random.Range(CameraScript.GetCameraLowerBounds().x, GetComponent<Pathfinder>().GraphWidth), (int)Random.Range(CameraScript.GetCameraLowerBounds().y, GetComponent<Pathfinder>().GraphHeight));
+        GetComponent<Pathfinder>().GoalNodePosition = new Vector2((int)Random.Range(CameraScript.GetCameraLowerBounds().x, CameraScript.GraphWidth), (int)Random.Range(CameraScript.GetCameraLowerBounds().y, CameraScript.GraphHeight));
         path = new List<Node>();
         transform.position = new Vector3(transform.position.x + 0.5f, transform.position.y + 0.5f);
     }
@@ -18,7 +18,7 @@ public class TestScript : MonoBehaviour
     {
         if (!GetComponent<Pathfinder>().map.IsNodeInside(GetComponent<Pathfinder>().GoalNodePosition) || GetComponent<Pathfinder>().map.IsObstacle(GetComponent<Pathfinder>().GoalNodePosition))
         {
-            GetComponent<Pathfinder>().GoalNodePosition = GetComponent<Pathfinder>().GoalNodePosition = new Vector2((int)Random.Range(CameraScript.GetCameraLowerBounds().x, GetComponent<Pathfinder>().GraphWidth), (int)Random.Range(CameraScript.GetCameraLowerBounds().y, GetComponent<Pathfinder>().GraphHeight));
+            GetComponent<Pathfinder>().GoalNodePosition = GetComponent<Pathfinder>().GoalNodePosition = new Vector2((int)Random.Range(CameraScript.GetCameraLowerBounds().x, CameraScript.GraphWidth), (int)Random.Range(CameraScript.GetCameraLowerBounds().y, CameraScript.GraphHeight));
         }
         path = GetComponent<Pathfinder>().path;
         Move();
@@ -38,10 +38,10 @@ public class TestScript : MonoBehaviour
             }
             if (Vector2.Distance(transform.position, GetComponent<Pathfinder>().GoalNodePosition) <= 1f)
             {
-                GetComponent<Pathfinder>().GoalNodePosition = new Vector2((int)Random.Range(CameraScript.GetCameraLowerBounds().x, GetComponent<Pathfinder>().GraphWidth), (int)Random.Range(CameraScript.GetCameraLowerBounds().y, GetComponent<Pathfinder>().GraphHeight));
+                GetComponent<Pathfinder>().GoalNodePosition = new Vector2((int)Random.Range(CameraScript.GetCameraLowerBounds().x, CameraScript.GraphWidth), (int)Random.Range(CameraScript.GetCameraLowerBounds().y, CameraScript.GraphHeight));
                 if (GetComponent<Pathfinder>().StartNodePosition == GetComponent<Pathfinder>().GoalNodePosition)
                 {
-                    GetComponent<Pathfinder>().GoalNodePosition = new Vector2((int)Random.Range(CameraScript.GetCameraLowerBounds().x, GetComponent<Pathfinder>().GraphWidth), (int)Random.Range(CameraScript.GetCameraLowerBounds().y, GetComponent<Pathfinder>().GraphHeight));
+                    GetComponent<Pathfinder>().GoalNodePosition = new Vector2((int)Random.Range(CameraScript.GetCameraLowerBounds().x, CameraScript.GraphWidth), (int)Random.Range(CameraScript.GetCameraLowerBounds().y, CameraScript.GraphHeight));
                 }
             }
         }

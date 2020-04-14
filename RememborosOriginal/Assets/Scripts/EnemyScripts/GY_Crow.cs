@@ -36,7 +36,6 @@ public class GY_Crow : EnemyRenderer2D
     }
     private void Update()
     {
-        GetComponent<FlockManager>().FlockMove();
         CheckLineOfSight();
         SetEnemyState();
         SetTargetType();
@@ -44,16 +43,15 @@ public class GY_Crow : EnemyRenderer2D
     private void FixedUpdate()
     {
         // TO DO assign target but at the moment it doesnt work because of ai animation selector and patrolling doesnt work cant change waypoints.
-        GetComponent<Pathfinder>().GoalNodePosition = player.transform.position; 
         CheckIfEnemyInside();
         GetGridsCoordinates();
         CheckGrids();
         SetGridsAroundPlayer();
+        ChangeTargetLocations();
     }
 
     public override Vector3 Move()
     {
-        GetComponent<Pathfinder>().StartNodePosition = new Vector2(transform.position.x, transform.position.y);
         path = GetComponent<Pathfinder>().path;
         Vector2 start = transform.position;
         if (path.Count > 0 || path != null)
@@ -81,6 +79,11 @@ public class GY_Crow : EnemyRenderer2D
         Gizmos.DrawWireSphere(transform.position, GetComponent<FlockManager>().neighborRadius);
     }
 
+    public override void EnemyPatrol()
+    {
+        GetComponent<FlockManager>().FlockMove();
+        CheckMovementDirection();
+    }
 
 
 }
