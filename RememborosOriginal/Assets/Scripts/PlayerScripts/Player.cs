@@ -6,21 +6,13 @@ using UnityEngine.Tilemaps;
 [RequireComponent(typeof(CharacterController2D))]
 public class Player : CharacterRenderer2D
 {
-<<<<<<< HEAD
-    Timer myTimer;
-
-    SpriteRenderer mySprite; // sprite renderer component
-    Rigidbody2D myRigid; // rigidbody  component
-=======
     [Space(10)]
     [Header("Player Variables")]
-<<<<<<< HEAD:Assets/Scenes/Scripts/Player.cs
     [SerializeField] private float jumpForce = 0;
->>>>>>> enginetry
-=======
+
     [SerializeField] private float jumpHeight = 4f;
     [SerializeField] private float timeToJumpApex = .4f;
->>>>>>> enginetry:Assets/Scenes/Scripts/PlayerScripts/Player.cs
+
     Animator myAnimator; // animator component
     private float move; // Movement input variable range in [-1,1]
     private bool isTouchingWall;
@@ -43,7 +35,6 @@ public class Player : CharacterRenderer2D
     [SerializeField] private float wallSlideSpeed = 0;
     [SerializeField] SendingRay testPoint;
 
-    private bool canMove;
     private Vector3[] _aroundGrids;
 
     float tempcharMoveSpeed; // created for changing charMoveSpeed when player attacks
@@ -101,27 +92,14 @@ public class Player : CharacterRenderer2D
     // Start is called before the first frame update
     void Start()
     {
-<<<<<<< HEAD:Assets/Scenes/Scripts/Player.cs
-<<<<<<< HEAD
-        myTimer = GetComponent<Timer>();
-        isSliding = false;
-        isFacingRight = true;
-        tempMoveSpeed = moveSpeed;
-        isAttacking = false;
-=======
-=======
-
         charController = GetComponent<CharacterController2D>();
         isTouchingEnemyHeadWithHead = false;
->>>>>>> enginetry:Assets/Scenes/Scripts/PlayerScripts/Player.cs
         collidingAgainst = CollidedAreas.Ground;
-        canMove = true;
         charTimer = new Timer();
         ChangeState(CharacterState.inIdling);
         charCurrentHealth = charMaxHealth;
         charIsFacingRight = true;
         tempcharMoveSpeed = charMoveSpeed;
->>>>>>> enginetry
         extraJumps = extraJumpsValue;
         myAnimator = GetComponent<Animator>();
         charSprite = GetComponent<SpriteRenderer>();
@@ -129,19 +107,6 @@ public class Player : CharacterRenderer2D
 
     private void Update()
     {
-<<<<<<< HEAD:Assets/Scenes/Scripts/Player.cs
-<<<<<<< HEAD
-        RunAnimations();
-        CheckMovementDirection();
-        //CheckLedgeClimb();
-        CheckIfWallSliding();  
-=======
-        CheckMovementDirection();    
-        LateWork(3f, Slide);
-        Attack();
->>>>>>> enginetry
-        Jump();
-=======
         gravity = -(2 * jumpHeight) / (Mathf.Pow(timeToJumpApex, 2));
         jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         if (charController.collisions.above || charController.collisions.below)
@@ -149,7 +114,6 @@ public class Player : CharacterRenderer2D
             velocity.y = 0;
         }
         Move();
->>>>>>> enginetry:Assets/Scenes/Scripts/PlayerScripts/Player.cs
         SetCharacterState();
         CheckMovementDirection();
         Jump();
@@ -158,21 +122,13 @@ public class Player : CharacterRenderer2D
     }
     private void FixedUpdate()
     {
-<<<<<<< HEAD
-        myTimer.ResetCurrentFrame(); 
-=======
         IsOnGround();
-<<<<<<< HEAD:Assets/Scenes/Scripts/Player.cs
->>>>>>> enginetry
         AdvancedJump();
         Move();
-=======
         SettingGridsCoordinates();
         SetGridsAroundPlayer();
->>>>>>> enginetry:Assets/Scenes/Scripts/PlayerScripts/Player.cs
         ThrowKnife();
         CheckSurroundings();
-        //AdvancedJump();
     }
     protected override void Move()
     {
@@ -183,7 +139,7 @@ public class Player : CharacterRenderer2D
         // get movement input value
         /* crossplatfrominputmanager dan çekmek daha iyi olabilir her türlü platformda çalışması için*/
         // check if attacking, if so dont get input for movement because of stopping character
-        if (IsRunning() || IsJumping() || IsFalling())// && canMove)
+        if (IsRunning() || IsJumping() || IsFalling())
         {
             velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (charController.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
         }
@@ -257,7 +213,6 @@ public class Player : CharacterRenderer2D
                     ChangeState(CharacterState.onFalling);
                 }
                 
-                //canMove = true;
             }
             if (Time.time - lastClickedTime > maxComboDelay * 6)
             {
@@ -428,11 +383,11 @@ public class Player : CharacterRenderer2D
         //Setting whether character is running or is idling
         if (!IsAttacking())
         {
-            if (move != 0 && charIsGrounded && !IsJumping()) //&& canMove)
+            if (move != 0 && charIsGrounded && !IsJumping())
             {
                 ChangeState(CharacterState.onRunning);
             }
-            else if (charIsGrounded && !IsJumping() & !IsIdling())// && canMove) // TO DO dynamic to kinematic rigidbody &&
+            else if (charIsGrounded && !IsJumping() & !IsIdling()) // TO DO dynamic to kinematic rigidbody &&
             {
                 ChangeState(CharacterState.inIdling);
                 velocity = Vector2.zero;
@@ -459,7 +414,6 @@ public class Player : CharacterRenderer2D
         {
             velocity = Vector2.zero;
             //noOfClicks++;
-            canMove = false;
             lastClickedTime = Time.time;          
             noOfClicks = Mathf.Clamp(noOfClicks, 1, 3);
             noOfClicksAir = Mathf.Clamp(noOfClicksAir, 1, 3);
