@@ -22,7 +22,7 @@ public class EnemyRenderer2D : MonoBehaviour
     }
 
     #region Protected Variables
-    [SerializeField] protected Player player = null;
+    [SerializeField] public Player player = null;
     protected bool isOnSight;
     public int noOfClicks;
     public bool canFlip;
@@ -31,7 +31,7 @@ public class EnemyRenderer2D : MonoBehaviour
     [SerializeField] float LineOfSightX = 0f;
     [SerializeField] protected Transform[] _wayPoints = null;
     protected int _randomPoint;
-    protected Vector2 target;
+    public Vector2 target;
     protected int directionValue;
     protected int counter;
     protected int intersectionValue;
@@ -209,7 +209,6 @@ public class EnemyRenderer2D : MonoBehaviour
             {
                 Vector2 targetRaw = new Vector3(path[0].Position.x, path[0].Position.y);
                 Vector3 targetPos = new Vector3(path[0].Position.x + 0.5f, path[0].Position.y + 0.5f);
-                //start = Vector3.Lerp(start, targetPos, Time.smoothDeltaTime * 10f);
                 start = (targetPos - transform.position).normalized;
                 start = start * new Vector3(enemyMoveSpeed, enemyMoveSpeed);
                 if (Vector2.Distance(transform.position, targetPos) <= 0.01f && targetRaw != GetComponent<Pathfinder>().GoalNodePosition)
@@ -217,14 +216,17 @@ public class EnemyRenderer2D : MonoBehaviour
                     GetComponent<Pathfinder>().StartNodePosition = new Vector2(transform.position.x, transform.position.y);
                 }
             }
+        transform.position += (Vector3)start * Time.deltaTime;
+        return start;
+    }
+
+    protected virtual void ChangeTargetLocations()
+    {
         if (Vector2.Distance(transform.position, target) < 0.2f)
         {
             _randomPoint = Random.Range(0, _wayPoints.Length);
         }
-        //TO DO transform.position += (Vector3)start * Time.deltaTime; Working with enemy, with this assignment it can move also patrol problem probably here check here.
-        return start;
     }
-
     ///<summary>
     /// enemyacter Checking Movement Direction Function 
     ///</summary>
@@ -345,12 +347,10 @@ public class EnemyRenderer2D : MonoBehaviour
         if (IsAttacking() || IsChasing())
         {
             target = player.transform.position;
-            //enemyMoveSpeed = 3f;
         }
         else
         {
             target = _wayPoints[_randomPoint].position;
-            //enemyMoveSpeed = 1.5f;
         }
     }
 
