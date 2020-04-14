@@ -40,7 +40,7 @@ public class CharacterController2D : MonoBehaviour
         {
             VerticalCollisions(ref velocity);
         }
-        transform.Translate(velocity);
+        transform.position += velocity;
     }
 
     void VerticalCollisions(ref Vector3 velocity)
