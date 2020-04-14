@@ -95,7 +95,7 @@ public class Player : CharacterRenderer2D
         charController = GetComponent<CharacterController2D>();
         isTouchingEnemyHeadWithHead = false;
         collidingAgainst = CollidedAreas.Ground;
-        charTimer = new Timer();
+        charTimer = GetComponent<Timer>();
         ChangeState(CharacterState.inIdling);
         charCurrentHealth = charMaxHealth;
         charIsFacingRight = true;
@@ -125,15 +125,15 @@ public class Player : CharacterRenderer2D
         IsOnGround();
         AdvancedJump();
         Move();
-        SettingGridsCoordinates();
+        //SettingGridsCoordinates();
         SetGridsAroundPlayer();
-        ThrowKnife();
+        //ThrowKnife();
         CheckSurroundings();
     }
     protected override void Move()
     {
         velocity.y += gravity * Time.deltaTime;
-        getGridCoordinates = gridTile.GetComponent<Tilemap>().layoutGrid.WorldToCell(transform.position);
+        //getGridCoordinates = gridTile.GetComponent<Tilemap>().layoutGrid.WorldToCell(transform.position);
         move = Input.GetAxisRaw("Horizontal");
         float targetVelocityX = move * charMoveSpeed;
         // get movement input value
@@ -325,7 +325,7 @@ public class Player : CharacterRenderer2D
     }
 
     // for drawing gizmos, unity library
-    private void OnDrawGizmos()
+   /* private void OnDrawGizmos()
     {
         Vector3 tester = new Vector3(getGridCoordinates.x + 0.5f, getGridCoordinates.y + 0.5f, 0.0f);
         Vector3[] aroundCoordinates = { new Vector3(coor_N.x + 0.5f, coor_N.y + 0.5f, 0.0f), new Vector3(coor_NW.x + 0.5f, coor_NW.y + 0.5f, 0.0f), new Vector3(coor_NE.x + 0.5f, coor_NE.y + 0.5f, 0.0f),
@@ -362,7 +362,7 @@ public class Player : CharacterRenderer2D
             }
             
         }
-    }
+    }*/
 
     void AdvancedJump()
     {
@@ -458,11 +458,11 @@ public class Player : CharacterRenderer2D
 
     }
 
-    private void SettingGridsCoordinates()
+   /* private void SettingGridsCoordinates()
     {
         Vector3[] aroundCoordinates = { coor_N, coor_NE, coor_S, coor_NW, coor_W, coor_SW, coor_E, coor_SE, getGridCoordinates};
         _aroundGrids = aroundCoordinates;
-    }
+    }*/
 
     private void OnCollisionEnter2D(Collision2D collision)
     {

@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 584723754}
   - component: {fileID: 842433862}
   - component: {fileID: 7793840989587650023}
+  - component: {fileID: 1620990710}
   m_Layer: 11
   m_Name: Player
   m_TagString: Player
@@ -225,16 +226,17 @@ MonoBehaviour:
   charAttackPoint: {fileID: 986552330094413061}
   enemyLayers:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 1
   playerLayer:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 1
   groundLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 1
   wallLayer:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 1
+  jumpForce: 0
   jumpHeight: 1.5
   timeToJumpApex: 0.4
   accelerationTimeAirborne: 0.05
@@ -293,10 +295,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collisionMask:
     serializedVersion: 2
-    m_Bits: 1280
+    m_Bits: 1
   horizontalRayCount: 4
   verticalRayCount: 4
   maxClimbAngle: 80
+--- !u!114 &1620990710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2645891933989931669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e9c095dd5f1f5948bbefdbb94d35910, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timerName: []
+  animationTime: []
+  cooldownTime: []
 --- !u!1 &3069387313554265686
 GameObject:
   m_ObjectHideFlags: 0
