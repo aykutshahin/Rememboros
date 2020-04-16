@@ -91,10 +91,7 @@ public class Player : CharacterRenderer2D
         {
             velocity.y = 0;
         }
-        else
-        {
-            velocity.y += gravity * Time.deltaTime;
-        }
+        velocity.y += gravity * Time.deltaTime;
 
         Move();
         SetCharacterState();
@@ -334,7 +331,7 @@ public class Player : CharacterRenderer2D
         if (IsDashing())
         {
             transform.position = Vector3.Lerp(transform.position,dashDistanceVector, dashSpeed * Time.deltaTime);
-            if(Mathf.Abs(transform.position.x - dashDistanceVector.x) <= 0.2f)
+            if(Mathf.Abs(transform.position.x - dashDistanceVector.x) <= 0.2f || (charController.collisions.left || charController.collisions.right))
             {
                 EndDash();
             }

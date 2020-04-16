@@ -184,7 +184,7 @@ MonoBehaviour:
   passengerMask:
     serializedVersion: 2
     m_Bits: 512
-  move: {x: 0, y: 1, z: 0}
+  move: {x: 0, y: 0.5, z: 0}
 --- !u!61 &172856301
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2444,7 +2444,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 880610171}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.36, y: -1.9512001, z: -10}
+  m_LocalPosition: {x: -1.77, y: -2.1602, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 391727533}
@@ -2469,7 +2469,7 @@ PrefabInstance:
     - target: {fileID: 996824017, guid: 4ba5f7f348046244ab0bd6e6154c131b, type: 3}
       propertyPath: mainCamera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2011245485}
     - target: {fileID: 6528891703091911987, guid: 4ba5f7f348046244ab0bd6e6154c131b,
         type: 3}
       propertyPath: m_Name
@@ -2956,6 +2956,14 @@ PrefabInstance:
       propertyPath: dashSpeed
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 584723754, guid: 2cc5ab57e358337429d0c1c14991f03f, type: 3}
+      propertyPath: accelerationTimeGrounded
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 584723754, guid: 2cc5ab57e358337429d0c1c14991f03f, type: 3}
+      propertyPath: accelerationTimeAirborne
+      value: 0.02
+      objectReference: {fileID: 0}
     - target: {fileID: 842433862, guid: 2cc5ab57e358337429d0c1c14991f03f, type: 3}
       propertyPath: m_Offset.x
       value: -0.031796813
@@ -3007,12 +3015,12 @@ PrefabInstance:
     - target: {fileID: 2645891933989931673, guid: 2cc5ab57e358337429d0c1c14991f03f,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.36
+      value: -1.77
       objectReference: {fileID: 0}
     - target: {fileID: 2645891933989931673, guid: 2cc5ab57e358337429d0c1c14991f03f,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.19
+      value: -2.399
       objectReference: {fileID: 0}
     - target: {fileID: 2645891933989931673, guid: 2cc5ab57e358337429d0c1c14991f03f,
         type: 3}
@@ -5441,7 +5449,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2011245483}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.36, y: -1.9512001, z: -10}
+  m_LocalPosition: {x: -1.77, y: -2.1602, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
