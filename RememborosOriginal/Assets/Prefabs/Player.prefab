@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 842433862}
   - component: {fileID: 7793840989587650023}
   - component: {fileID: 1620990710}
-  m_Layer: 11
+  m_Layer: 9
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -151,7 +151,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -216,7 +216,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   charMoveSpeed: 3.5
   charMaxHealth: 100
-  _charChallengeWeight: 8
   charCheckRadius: 0.2
   charGroundCheckPoint: {fileID: 1500230913}
   gridTile: {fileID: 0}
@@ -232,14 +231,18 @@ MonoBehaviour:
     m_Bits: 512
   groundLayer:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 5120
   wallLayer:
     serializedVersion: 2
     m_Bits: 1024
   jumpHeight: 1.5
   timeToJumpApex: 0.4
-  accelerationTimeAirborne: 0.05
-  accelerationTimeGrounded: 0.04
+  dashDistance: {x: 2, y: 0, z: 0}
+  dashSpeed: 5
+  dashCooldown: 1
+  attackCooldown: 0.52
+  accelerationTimeAirborne: 0.02
+  accelerationTimeGrounded: 0.01
   extraJumpsValue: 1
   fallMultiplier: 2.5
   wallCheckDistance: 0.4
@@ -251,7 +254,6 @@ MonoBehaviour:
   noOfClicksAir: 1
   maxComboDelay: 0.2
   maxComboDelayAnimation: 0.6
-  feetPos: {fileID: 518068230222112798}
 --- !u!61 &842433862
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -295,7 +297,11 @@ MonoBehaviour:
     m_Bits: 5120
   horizontalRayCount: 4
   verticalRayCount: 4
+  charCollider: {fileID: 0}
+  horizontalRaySpacing: 0
+  verticalRaySpacing: 0
   maxClimbAngle: 80
+  maxDescendAngle: 75
 --- !u!114 &1620990710
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,7 +326,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 518068230222112798}
-  m_Layer: 11
+  m_Layer: 9
   m_Name: Feet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -350,7 +356,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3821324401612115189}
-  m_Layer: 11
+  m_Layer: 9
   m_Name: WallCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -380,7 +386,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 986552330094413061}
-  m_Layer: 11
+  m_Layer: 9
   m_Name: AttackPointRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -410,7 +416,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7659030404319921442}
-  m_Layer: 11
+  m_Layer: 9
   m_Name: WallCheck2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
