@@ -7,6 +7,8 @@ TagManager:
   - Background
   - Waypoint
   - Enemy
+  - BoundaryManager
+  - Boundary
   layers:
   - Default
   - TransparentFX

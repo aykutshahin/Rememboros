@@ -56,9 +56,6 @@ public class CharacterRenderer2D : MonoBehaviour
     [Range(0,7)]
     [SerializeField][Tooltip("Character Movement Speed")] protected float charMoveSpeed = 0;
     [SerializeField][Tooltip("Character Maximum Health")] protected float charMaxHealth = 0;
-    [SerializeField] protected int _charChallengeWeight = 8;
-    protected Vector3 coor_N, coor_NW, coor_NE, coor_S, coor_SW, coor_SE, coor_E, coor_W;
-    protected Vector3 getGridCoordinates;
 
     [Space(5)]
     ///STATE CONTROLS
@@ -127,23 +124,6 @@ public class CharacterRenderer2D : MonoBehaviour
         return;
     }
 
-    #region Enemy Specific Functions
-    ///<summary>
-    /// Enemy Patrol Function 
-    ///</summary>
-    public virtual void EnemyPatrol()
-    {
-        return;
-    }
-    ///<summary>
-    /// Enemy Chase Function 
-    ///</summary>
-    public virtual void EnemyChase()
-    {
-        return;
-    }
-    #endregion
-
     ///If is necessary to use
     /*///<summary>
     /// Character Reset Variables Function 
@@ -205,17 +185,12 @@ public class CharacterRenderer2D : MonoBehaviour
         return;
     }
 
-    protected virtual void SetGridsAroundPlayer()
+    protected virtual void Dash()
     {
-        coor_N = new Vector3(getGridCoordinates.x, getGridCoordinates.y + 1f);
-        coor_NE = new Vector3(getGridCoordinates.x + 1f, getGridCoordinates.y + 1f);
-        coor_NW = new Vector3(getGridCoordinates.x - 1f, getGridCoordinates.y + 1f);
-        coor_S = new Vector3(getGridCoordinates.x, getGridCoordinates.y - 1f);
-        coor_SE = new Vector3(getGridCoordinates.x + 1f, getGridCoordinates.y - 1f);
-        coor_SW = new Vector3(getGridCoordinates.x - 1f, getGridCoordinates.y - 1f);
-        coor_W = new Vector3(getGridCoordinates.x - 1f, getGridCoordinates.y);
-        coor_E = new Vector3(getGridCoordinates.x + 1f, getGridCoordinates.y);
+        return;
     }
+
+   
     #region Functions of Returning Character States
     protected bool IsIdling()
     {
@@ -272,16 +247,6 @@ public class CharacterRenderer2D : MonoBehaviour
         return charState == CharacterState.onEnemy;
     }
 
-    #region Enemy Functions
-    protected bool IsPatrolling()
-    {
-        return charState == CharacterState.Patroling;
-    }
-    protected bool IsChasing()
-    {
-        return charState == CharacterState.Chasing;
-    }
-    #endregion
 
     //COLLIDED AREAS
     protected bool IsGrounded()
