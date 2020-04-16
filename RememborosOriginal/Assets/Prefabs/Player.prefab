@@ -226,17 +226,16 @@ MonoBehaviour:
   charAttackPoint: {fileID: 986552330094413061}
   enemyLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   playerLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 512
   groundLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4096
   wallLayer:
     serializedVersion: 2
-    m_Bits: 1
-  jumpForce: 0
+    m_Bits: 1024
   jumpHeight: 1.5
   timeToJumpApex: 0.4
   accelerationTimeAirborne: 0.05
@@ -248,8 +247,6 @@ MonoBehaviour:
   testPoint: {fileID: 0}
   wallCheck: {fileID: 3821324401612115189}
   wallCheck2: {fileID: 7659030404319921442}
-  Knife: {fileID: 6376055437394060127, guid: 6f460da7a326cce449e0c118c4b193e6, type: 3}
-  throwPoint: {fileID: 1030688103}
   noOfClicks: 1
   noOfClicksAir: 1
   maxComboDelay: 0.2
@@ -295,7 +292,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collisionMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 5120
   horizontalRayCount: 4
   verticalRayCount: 4
   maxClimbAngle: 80

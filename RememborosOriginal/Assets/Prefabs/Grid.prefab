@@ -735,7 +735,7 @@ GameObject:
   - component: {fileID: 4762971830214379976}
   - component: {fileID: 235304719}
   - component: {fileID: 235304718}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Environment with collider
   m_TagString: Background
   m_Icon: {fileID: 0}

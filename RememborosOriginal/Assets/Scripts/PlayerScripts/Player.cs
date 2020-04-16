@@ -434,11 +434,11 @@ public class Player : CharacterRenderer2D
 
     }
 
-   /* private void SettingGridsCoordinates()
+    private void SettingGridsCoordinates()
     {
         Vector3[] aroundCoordinates = { coor_N, coor_NE, coor_S, coor_NW, coor_W, coor_SW, coor_E, coor_SE, getGridCoordinates };
         _aroundGrids = aroundCoordinates;
-    }*/
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
