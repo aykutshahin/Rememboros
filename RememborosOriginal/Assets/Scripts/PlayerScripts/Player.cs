@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-[RequireComponent(typeof(CharacterController2D))]
 public class Player : CharacterRenderer2D
 {
     [Space(10)]
@@ -13,8 +12,12 @@ public class Player : CharacterRenderer2D
     Animator myAnimator; // animator component
     private float move; // Movement input variable range in [-1,1]
     private bool isTouchingWall;
-    private bool isTouchingEnemyHead;
-    private bool isTouchingEnemyHeadWithHead;
+    public Vector3 dashDistance;
+    private Vector3 dashDistanceVector;
+    public float dashSpeed = 0;
+    public float dashCooldown = 0;
+    public float attackCooldown = 0;
+    CharacterState prevState;
 
     //CharacterController2D
     CharacterController2D charController;
@@ -24,6 +27,7 @@ public class Player : CharacterRenderer2D
     float velocityXSmoothing;
     public float accelerationTimeAirborne = .2f;
     public float accelerationTimeGrounded = .1f;
+    float facingDirection;
 
     private int extraJumps; // Amount of jump
     [SerializeField] private int extraJumpsValue = 0;
@@ -33,44 +37,19 @@ public class Player : CharacterRenderer2D
     [SerializeField] SendingRay testPoint;
 
 
-    private Vector3[] _aroundGrids;
-
     float tempcharMoveSpeed; // created for changing charMoveSpeed when player attacks
     [SerializeField] private Transform wallCheck = null;
     [SerializeField] private Transform wallCheck2 = null;
 
 
     //TIMER
-    float nextAttackTime = 0f;
     public int noOfClicks = 1; // amount of clicks ranged in [0,3] since player has 3 attack animations
     public int noOfClicksAir = 1;
     float lastClickedTime = 0;
     public float maxComboDelay = 0.9f; // checking step by step click not spawning
     public float maxComboDelayAnimation = 0.53f; // animation delay
-    private Vector3 enemyPos;
-    [SerializeField] Transform feetPos;
     Vector3 start;
 
-    public int PlayerChallengeWeight
-    {
-        get
-        {
-            return _charChallengeWeight;
-        }
-
-        set
-        {
-            _charChallengeWeight = value;
-        }
-    }
-
-    public Vector3[] PlayerLastGrids
-    {
-        get
-        {
-            return _aroundGrids;
-        }
-    }
 
     public CharacterState PlayerState
     {
@@ -87,9 +66,10 @@ public class Player : CharacterRenderer2D
     // Start is called before the first frame update
     void Start()
     {
-
+        attackCooldown = 1f / charAttackRate;
+        facingDirection = 1;
+        charTimer = GetComponent<Timer>();
         charController = GetComponent<CharacterController2D>();
-        isTouchingEnemyHeadWithHead = false;
         collidingAgainst = CollidedAreas.Ground;
         ChangeState(CharacterState.inIdling);
         charCurrentHealth = charMaxHealth;
@@ -98,35 +78,41 @@ public class Player : CharacterRenderer2D
         extraJumps = extraJumpsValue;
         myAnimator = GetComponent<Animator>();
         charSprite = GetComponent<SpriteRenderer>();
+        charTimer.addTimer("Attack", 1f, attackCooldown);
+        charTimer.addTimer("Dash", 1f, dashCooldown);
     }
 
     private void Update()
     {
         gravity = -(2 * jumpHeight) / (Mathf.Pow(timeToJumpApex, 2));
         jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
+
         if (charController.collisions.above || charController.collisions.below)
         {
             velocity.y = 0;
         }
+        else
+        {
+            velocity.y += gravity * Time.deltaTime;
+        }
+
         Move();
         SetCharacterState();
         CheckMovementDirection();
         Jump();
         Attack();
         RunAnimations();
+        Dash();
     }
     private void FixedUpdate()
     {
         IsOnGround();
-        SettingGridsCoordinates();
-        SetGridsAroundPlayer();
         CheckSurroundings();
-        //AdvancedJump();
+        AdvancedJump();
+        charTimer.DecreaseCurrentFrame();
     }
     protected override void Move()
     {
-        velocity.y += gravity * Time.deltaTime;
-        //getGridCoordinates = gridTile.GetComponent<Tilemap>().layoutGrid.WorldToCell(transform.position);
         move = Input.GetAxisRaw("Horizontal");
         float targetVelocityX = move * charMoveSpeed;
         // get movement input value
@@ -135,6 +121,10 @@ public class Player : CharacterRenderer2D
         if (IsRunning() || IsJumping() || IsFalling())// && canMove)
         {
             velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (charController.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+        }
+        if (IsDashing())
+        {
+            velocity.y = 0;
         }
         charController.Move(velocity * Time.deltaTime);
         // check if sliding, if so make slide movement
@@ -181,9 +171,10 @@ public class Player : CharacterRenderer2D
     protected override void Flip()
     {
         // check if wall sliding, if not player can flip
-        if (!IsWallSliding())
+        if (!IsWallSliding() && !IsDashing())
         {
             // flip player
+            facingDirection *= -1;
             charIsFacingRight = !charIsFacingRight;
             transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
         }
@@ -191,7 +182,7 @@ public class Player : CharacterRenderer2D
     }
     public override void Attack()
     {
-        if (Time.time >= nextAttackTime)
+        if (!charTimer.isOnCooldown("Attack"))
         {
             // when click time pass, attack animation resets for example when you click the mouse after that you will see Attack animation 1 and so on
             if (Time.time - lastClickedTime > maxComboDelay && (IsAttacking() || IsAirAttacking()))
@@ -205,7 +196,6 @@ public class Player : CharacterRenderer2D
                     ChangeState(CharacterState.onFalling);
                 }
 
-                //canMove = true;
             }
             if (Time.time - lastClickedTime > maxComboDelay * 6)
             {
@@ -252,8 +242,8 @@ public class Player : CharacterRenderer2D
                         myAnimator.SetTrigger("AirAttack2");
                     }
                 }
-                // next click time should be that attack rate which is specified by ourselves.
-                nextAttackTime = Time.time + 1f / charAttackRate;
+
+                charTimer.ResetCooldownFrame("Attack");
 
             }
         }
@@ -313,17 +303,12 @@ public class Player : CharacterRenderer2D
         charIsGrounded = Physics2D.OverlapCircle(charGroundCheckPoint.position, charCheckRadius, groundLayer);
         // creating a raycast form wallcheck position to right in wallcheckdistance size and last parameter represents what kind of layer is touched
         isTouchingWall = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, wallLayer);
-        //isTouchingEnemyHead = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, enemyLayers);
         myAnimator.SetBool("isGrounded", charIsGrounded);
     }
 
     // for drawing gizmos, unity library
-   /* private void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        Vector3 tester = new Vector3(getGridCoordinates.x + 0.5f, getGridCoordinates.y + 0.5f, 0.0f);
-        Vector3[] aroundCoordinates = { new Vector3(coor_N.x + 0.5f, coor_N.y + 0.5f, 0.0f), new Vector3(coor_NW.x + 0.5f, coor_NW.y + 0.5f, 0.0f), new Vector3(coor_NE.x + 0.5f, coor_NE.y + 0.5f, 0.0f),
-        new Vector3(coor_S.x + 0.5f, coor_S.y + 0.5f, 0.0f),new Vector3(coor_SE.x + 0.5f, coor_SE.y + 0.5f, 0.0f),new Vector3(coor_SW.x + 0.5f, coor_SW.y + 0.5f, 0.0f),new Vector3(coor_W.x + 0.5f, coor_W.y + 0.5f, 0.0f),
-        new Vector3(coor_E.x + 0.5f, coor_E.y + 0.5f, 0.0f)};
         if (charAttackPoint == null)
         {
             return;
@@ -331,14 +316,9 @@ public class Player : CharacterRenderer2D
         Gizmos.DrawWireSphere(charAttackPoint.position, charAttackRange);
         Gizmos.DrawLine(wallCheck.position, new Vector3(wallCheck.position.x + wallCheckDistance, wallCheck.position.y, wallCheck.position.z));
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(tester, new Vector3(gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.x, gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.y));
-        for (int i = 0; i < 8; i++)
-        {
-            Gizmos.DrawWireCube(aroundCoordinates[i], new Vector3(gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.x, gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.y));
-        }
         /*Vector3 a1Test = (testPoint.foundedTarget - transform.position);
         Gizmos.DrawRay(transform.position, a1Test);*/ // TO DO Avoiding obstacles
-    //}
+    }
 
     void AdvancedJump()
     {
@@ -349,28 +329,52 @@ public class Player : CharacterRenderer2D
         }
     }
 
+    protected override void Dash()
+    {
+        if (IsDashing())
+        {
+            transform.position = Vector3.Lerp(transform.position,dashDistanceVector, dashSpeed * Time.deltaTime);
+            if(Mathf.Abs(transform.position.x - dashDistanceVector.x) <= 0.2f)
+            {
+                EndDash();
+            }
+        }
+
+    }
+
+    void EndDash()
+    {
+        ChangeState(prevState);
+        charTimer.ResetCooldownFrame("Dash");
+    }
+
     protected override void ChangeState(CharacterState charState)
     {
-        this.charState = charState;
+        if(this.charState != charState)
+        {
+            prevState = this.charState;
+            this.charState = charState;
+        }
+        
     }
 
     protected override void SetCharacterState()
     {
         //Setting whether character is running or is idling
-        if (!IsAttacking())
+        if (!IsAttacking() && !IsDashing())
         {
-            if (move != 0 && charIsGrounded && !IsJumping()) //&& canMove)
+            if (move != 0 && charIsGrounded && !IsJumping())
             {
                 ChangeState(CharacterState.onRunning);
             }
-            else if (charIsGrounded && !IsJumping() & !IsIdling())// && canMove) // TO DO dynamic to kinematic rigidbody &&
+            else if (charIsGrounded && !IsJumping() & !IsIdling())
             {
                 ChangeState(CharacterState.inIdling);
                 velocity = Vector2.zero;
             }
         }
         //
-        if (!charIsGrounded && velocity.y > 0 && !IsAirAttacking())
+        if (!charIsGrounded && velocity.y > 0 && !IsAirAttacking() && !IsDashing())
         {
             ChangeState(CharacterState.onJumping);
         }
@@ -380,16 +384,21 @@ public class Player : CharacterRenderer2D
             ChangeState(CharacterState.onWallSliding);
         }
         //
-        if (velocity.y < 0 && !isTouchingWall && !charIsGrounded && !IsAirAttacking())
+        if (velocity.y < 0 && !isTouchingWall && !charIsGrounded && !IsAirAttacking() && !IsDashing())
         {
             ChangeState(CharacterState.onFalling);
         }
-
+        if(Input.GetKeyDown(KeyCode.LeftShift) && !IsWallSliding() && !charTimer.isOnCooldown("Dash") && !IsDashing())
+        {
+            float distance = dashDistance.x * facingDirection;
+            ChangeState(CharacterState.onDashing);
+            distance = transform.position.x + distance;
+            dashDistanceVector = new Vector3(distance, transform.position.y);
+        }
         //
-        if (Input.GetMouseButtonDown(0) && !IsWallSliding() && !IsFalling())
+        if (Input.GetMouseButtonDown(0) && !IsWallSliding() && !IsFalling() && !IsDashing())
         {
             velocity = Vector2.zero;
-            //noOfClicks++;
             lastClickedTime = Time.time;
             noOfClicks = Mathf.Clamp(noOfClicks, 1, 3);
             noOfClicksAir = Mathf.Clamp(noOfClicksAir, 1, 3);
@@ -403,48 +412,5 @@ public class Player : CharacterRenderer2D
             }
         }
 
-        //TO DO jumping on enemys head (needed animations)
-        /* if (isTouchingEnemyHead && isTouchingEnemyHeadWithHead)
-           {
-               start = transform.position;
-               charRigidbody.bodyType = RigidbodyType2D.Kinematic;
-               RaycastHit2D enemyHit = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, enemyLayers);
-               Vector3 target = enemyHit.rigidbody.gameObject.GetComponent<Enemy>().headPos.position;
-               start = Vector3.Lerp(start, target, (Time.smoothDeltaTime) * 10f);
-               transform.position = start;
-               if(Vector2.Distance(transform.position,enemyHit.rigidbody.gameObject.GetComponent<Enemy>().headPos.position) < 0.08f)
-               {
-                   charRigidbody.bodyType = RigidbodyType2D.Static;
-                   ChangeState(CharacterState.onEnemy);
-                   isTouchingEnemyHeadWithHead = false;
-               }
-               //Vector2 onEnemy = new Vector2(enemyHit.rigidbody.gameObject.GetComponent<Collider2D>().bounds.center.x, enemyHit.rigidbody.gameObject.GetComponent<Collider2D>().bounds.center.y + 0.6f);
-               //enemyHit.rigidbody.MovePosition(Vector2.MoveTowards(enemyPos, enemyPos - new Vector3(0.5f, 0f), Time.deltaTime));
-           }
-           if (IsOnEnemy())
-           {
-               if (Input.GetKeyDown(KeyCode.Space))
-               {
-                   charRigidbody.bodyType = RigidbodyType2D.Dynamic;
-                   charRigidbody.velocity = new Vector2(1 * jumpVelocity, jumpVelocity * 2);
-                   myAnimator.SetTrigger("Jump");
-               }
-           }
-           */
-
-    }
-
-    private void SettingGridsCoordinates()
-    {
-        Vector3[] aroundCoordinates = { coor_N, coor_NE, coor_S, coor_NW, coor_W, coor_SW, coor_E, coor_SE, getGridCoordinates };
-        _aroundGrids = aroundCoordinates;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.collider == Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, enemyLayers).collider && !isTouchingEnemyHeadWithHead)
-        {
-            enemyPos = collision.rigidbody.gameObject.transform.position;
-        }
     }
 }

@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//TO DO LIST
-//Integrate belgian ai with flock algorithm
-//Fix flipping bug 
-//Fix when target not player, not moving bug
 
 [RequireComponent(typeof(Collider2D))]
 public class GY_Crow : EnemyRenderer2D
@@ -17,10 +13,8 @@ public class GY_Crow : EnemyRenderer2D
     {
         path = new List<Node>();
         moveVector = Vector2.zero;
-        enemyType = EnemyType.GY_Crow;
         enemyCollider = GetComponent<Collider2D>();
         canAttack = true;
-        counter = 1;
         canFlip = true;
         noOfClicks = 1;
         directionValue = 1;
@@ -42,11 +36,6 @@ public class GY_Crow : EnemyRenderer2D
     }
     private void FixedUpdate()
     {
-        // TO DO assign target but at the moment it doesnt work because of ai animation selector and patrolling doesnt work cant change waypoints.
-        CheckIfEnemyInside();
-        GetGridsCoordinates();
-        CheckGrids();
-        SetGridsAroundPlayer();
         ChangeTargetLocations();
     }
 

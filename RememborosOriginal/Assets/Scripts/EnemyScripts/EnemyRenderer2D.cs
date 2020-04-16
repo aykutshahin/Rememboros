@@ -33,9 +33,6 @@ public class EnemyRenderer2D : MonoBehaviour
     protected int _randomPoint;
     public Vector2 target;
     protected int directionValue;
-    protected int counter;
-    protected int intersectionValue;
-    protected Vector3[] _enemyGridCoords;
     protected bool canAttack;
 
     [SerializeField] protected Transform LineOfSight = null;
@@ -48,8 +45,6 @@ public class EnemyRenderer2D : MonoBehaviour
     ///Members of other classes
     protected Animator enemyAnimationController;
     protected EnemyState enemyState;
-    protected EnemyType enemyType;
-    public EnemyType _enemyType{get{ return enemyType; }}
     protected Timer enemyTimer;
 
     ///GENERAL
@@ -57,9 +52,6 @@ public class EnemyRenderer2D : MonoBehaviour
     [Range(0, 7)]
     [SerializeField] [Tooltip("enemyacter Movement Speed")] protected float enemyMoveSpeed = 0;
     [SerializeField] [Tooltip("enemyacter Maximum Health")] protected float enemyMaxHealth = 0;
-    [SerializeField] protected int _enemyChallengeWeight = 8;
-    protected Vector3 coor_N, coor_NW, coor_NE, coor_S, coor_SW, coor_SE, coor_E, coor_W;
-    protected Vector3 getGridCoordinates;
 
     [Space(5)]
     ///STATE CONTROLS
@@ -92,7 +84,6 @@ public class EnemyRenderer2D : MonoBehaviour
     #endregion
 
     #region Public Variables
-    [SerializeField] public Transform headPos;
     #endregion
 
     #region Functions
@@ -139,11 +130,6 @@ public class EnemyRenderer2D : MonoBehaviour
     ///</summary>
     public virtual void Die()
     {
-        if (counter == 0)
-        {
-            player.PlayerChallengeWeight += _enemyChallengeWeight;
-            player.PlayerChallengeWeight = Mathf.Clamp(player.PlayerChallengeWeight, 0, 8);
-        }
         Destroy(gameObject);
     }
 
@@ -300,23 +286,10 @@ public class EnemyRenderer2D : MonoBehaviour
         enemyAnimationController.SetBool("isPatrolling", IsPatrolling());
     }
 
-    protected virtual void SetGridsAroundPlayer()
-    {
-        coor_N = new Vector3(getGridCoordinates.x, getGridCoordinates.y + 1f);
-        coor_NE = new Vector3(getGridCoordinates.x + 1f, getGridCoordinates.y + 1f);
-        coor_NW = new Vector3(getGridCoordinates.x - 1f, getGridCoordinates.y + 1f);
-        coor_S = new Vector3(getGridCoordinates.x, getGridCoordinates.y - 1f);
-        coor_SE = new Vector3(getGridCoordinates.x + 1f, getGridCoordinates.y - 1f);
-        coor_SW = new Vector3(getGridCoordinates.x - 1f, getGridCoordinates.y - 1f);
-        coor_W = new Vector3(getGridCoordinates.x - 1f, getGridCoordinates.y);
-        coor_E = new Vector3(getGridCoordinates.x + 1f, getGridCoordinates.y);
-    }
+
 
     protected virtual void OnDrawGizmos()
     {
-
-        Vector3 tester = new Vector3(getGridCoordinates.x + 0.5f, getGridCoordinates.y + 0.5f, 0.0f);
-        Vector3[] tester2 = { new Vector3(coor_W.x + 0.5f, coor_W.y + 0.5f, 0.0f), new Vector3(coor_E.x + 0.5f, coor_E.y + 0.5f, 0.0f) };
         if (enemyAttackPoint == null || LineOfSight == null)
         {
             return;
@@ -332,14 +305,6 @@ public class EnemyRenderer2D : MonoBehaviour
             Gizmos.DrawLine(LineOfSight.position, new Vector3(LineOfSight.position.x - LineOfSightX, LineOfSight.position.y + (LineOfSightX * 0.58f), LineOfSight.position.z));
             Gizmos.DrawLine(LineOfSight.position, new Vector3(LineOfSight.position.x - LineOfSightX, LineOfSight.position.y - (LineOfSightX * 0.58f), LineOfSight.position.z));
         }
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(tester, new Vector3(gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.x, gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.y));
-        for (int i = 0; i < 2; i++)
-        {
-            Gizmos.DrawWireCube(tester2[i], new Vector3(gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.x, gridTile.GetComponent<Tilemap>().layoutGrid.cellSize.y));
-        }
-
-
     }
 
     protected void SetTargetType()
@@ -354,61 +319,7 @@ public class EnemyRenderer2D : MonoBehaviour
         }
     }
 
-    protected void CheckGrids()
-    {
-        if (player.PlayerLastGrids != null)
-        {
-            for (int i = 0; i < 9; i++)
-            {
-                if ((player.PlayerLastGrids[i] == new Vector3(getGridCoordinates.x + (-directionValue), getGridCoordinates.y)) && counter == 1)
-                {
-
-                    if ((player.PlayerChallengeWeight - _enemyChallengeWeight) >= 0)
-                    {
-                        if (counter == 1)
-                        {
-                            canAttack = true;
-                            player.PlayerChallengeWeight = (player.PlayerChallengeWeight - _enemyChallengeWeight);
-                            counter--;
-                            ChangeState(EnemyState.Chasing);
-                        }
-
-                    }
-                    else
-                    {
-                        canAttack = false;
-                        ChangeState(EnemyState.onWaitingToAttack);
-                    }
-                }
-            }
-        }
-    }
-    protected void GetGridsCoordinates()
-    {
-        getGridCoordinates = gridTile.GetComponent<Tilemap>().layoutGrid.WorldToCell(transform.position);
-        Vector3[] tempCoords = {new Vector3(getGridCoordinates.x + 1f,getGridCoordinates.y), new Vector3(getGridCoordinates.x, getGridCoordinates.y),
-        new Vector3(getGridCoordinates.x + -1f,getGridCoordinates.y)};
-        _enemyGridCoords = tempCoords;
-    }
-
-    protected void CheckIfEnemyInside()
-    {
-        if(player != null)
-        {
-            if (!((player.PlayerLastGrids[0].y >= getGridCoordinates.y) && (player.PlayerLastGrids[2].y <= getGridCoordinates.y) &&
-       (player.PlayerLastGrids[4].x <= getGridCoordinates.x) && (player.PlayerLastGrids[6].x >= getGridCoordinates.x)))
-            {
-                if (counter == 0)
-                {
-                    player.PlayerChallengeWeight += _enemyChallengeWeight;
-                    player.PlayerChallengeWeight = Mathf.Clamp(player.PlayerChallengeWeight, 0, 20); // TO DO add variable to max challenge value
-                }
-                counter = 1;
-                canAttack = true;
-            }
-        }
-       
-    }
+   
     protected void CheckLineOfSight()
     {
         if (player != null)

@@ -15,9 +15,7 @@ public class Enemy : EnemyRenderer2D
     }
     void Start()
     {
-        enemyType = EnemyType.Enemy;
         canAttack = true;
-        counter = 1;
         canFlip = true;
         noOfClicks = 1;
         directionValue = 1;
@@ -41,10 +39,6 @@ public class Enemy : EnemyRenderer2D
     }
     private void FixedUpdate()
     {
-        CheckIfEnemyInside();
-        GetGridsCoordinates();
-        CheckGrids();
-        SetGridsAroundPlayer();
         UpdateAnimations();
         ChangeTargetLocations();
     }
