@@ -2,44 +2,50 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Rememboros;
 
 public class Enemy : EnemyRenderer2D
 {
-    // Start is called before the first frame update
-    public bool FacingRight
+    public void Init()
     {
-        get
-        {
-            return enemyIsFacingRight;
-        }
+        //Timer
+        m_Timer = GetComponent<Timer>();
+        m_Timer.addTimer("Attack", 1f, m_Attack.enemyAttackCooldown);
+
+        m_General.currentHealth = m_General.Health;
+
+        m_General.enemyAnimator = GetComponent<Animator>();
+
+        enemyState = EnemyState.Patroling;
+
+        enemyIsFacingRight = true;
+
+    }
+
+    private void Awake()
+    {
+        m_InputDriver = GetComponent<BaseInputDriver>();
+        enemyRigidbody = GetComponent<Rigidbody2D>();
+        enemyCollider = GetComponent<BoxCollider2D>();
+        m_Motor = GetComponent<CharacterMotor2D>();
     }
     void Start()
     {
-        canAttack = true;
-        canFlip = true;
-        noOfClicks = 1;
-        directionValue = 1;
-        enemyState = EnemyState.Patroling;
-        target = new Vector2(0, 0);
-       _randomPoint = Random.Range(0, _wayPoints.Length);
-        isOnSight = false;
-        enemyIsAttacking = false;
-        enemyIsFacingRight = true;
-        enemyAnimationController = GetComponent<Animator>();
-        enemyRigidbody = GetComponent<Rigidbody2D>();
-        enemyCurrentHealth = enemyMaxHealth;
+        Init();
     }
+
 
     // Update is called once per frame
     void Update()
     {
-        CheckLineOfSight();
-        SetEnemyState();
+        UpdateStates();
         SetTargetType();
     }
     private void FixedUpdate()
     {
-        UpdateAnimations();
+        m_Motor.Move(new Vector2(Move().x, -m_General.gravity) * Time.fixedDeltaTime,false);
+        UpdateTimers();
+        SetEnemyState();
         ChangeTargetLocations();
     }
 
@@ -47,4 +53,5 @@ public class Enemy : EnemyRenderer2D
     {
         base.OnDrawGizmos();
     }
+
 }

@@ -81,10 +81,12 @@ public class FlockManager : MonoBehaviour
             diff /= Vector2.Distance(this.transform.position, agent.position);
             steering += diff;
         }
+        
         if (flock.Count > 0)
         {
             steering /= flock.Count;
         }
+
         return steering;
     }
     /// <summary>
@@ -93,7 +95,7 @@ public class FlockManager : MonoBehaviour
     private List<Transform> GetNearbyObjects(GY_Crow agent)
     {
         List<Transform> context = new List<Transform>();
-        Collider2D[] contextColliders = Physics2D.OverlapCircleAll(agent.transform.position, neighborRadius, GetComponent<GY_Crow>().enemyLayers);
+        Collider2D[] contextColliders = Physics2D.OverlapCircleAll(agent.transform.position, neighborRadius, GetComponent<GY_Crow>().m_General.enemyLayer);
         foreach (Collider2D c in contextColliders)
         {
             if (c != this.GetComponent<GY_Crow>().AgentCollider)
