@@ -124,6 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MovementSettings:
     Speed: 3.5
+    canFlip: 1
     AccelerationTimeAirborne: 0.1
     AccelerationTimeGrounded: 0.1
   m_OnLadderSettings:
@@ -230,7 +231,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CollisionLayer:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 5120
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
   m_HorizontalRayCount: 6
   m_VerticalRayCount: 4
 --- !u!114 &6482566196167111544
